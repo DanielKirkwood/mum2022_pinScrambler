@@ -285,6 +285,7 @@ dependencies {
         implementation jscFlavor
     }
 
+    // added for package: react-native-fs
     implementation project(':react-native-fs')
 }
 

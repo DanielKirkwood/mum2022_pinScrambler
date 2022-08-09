@@ -4,9 +4,15 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 import android.os.Bundle;
-import com.rnfs.RNFSPackage;
 
-public class MainActivity extends Application implements ReactActivity {
+
+public class MainActivity extends ReactActivity {
+
+  // added for package: react-native-screen
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(null);
+  }
 
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
@@ -25,21 +31,6 @@ public class MainActivity extends Application implements ReactActivity {
   @Override
   protected ReactActivityDelegate createReactActivityDelegate() {
     return new MainActivityDelegate(this, getMainComponentName());
-  }
-
-  // Added for package: react-native-screens
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(null);
-  }
-
-  // Added for package: react-native-fs
-  @Override
-  protected List<ReactPackage> getPackages() {
-    return Arrays.<ReactPackage>asList(
-      new MainReactPackage(), // <---- add comma
-      new RNFSPackage() // <---------- add package
-    );
   }
 
   public static class MainActivityDelegate extends ReactActivityDelegate {
