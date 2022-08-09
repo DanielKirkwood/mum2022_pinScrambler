@@ -1,6 +1,6 @@
 import type {PayloadAction} from '@reduxjs/toolkit';
 import {createSlice} from '@reduxjs/toolkit';
-import shuffle from '../../Utilities/shuffle';
+import {shuffle} from './utils';
 
 export interface SavedData {
   uid: number | null;
