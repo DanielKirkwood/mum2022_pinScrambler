@@ -22,6 +22,7 @@ export default function ({Colors, ...args}) {
       },
       textInput: {
         borderWidth: 1,
+        borderRadius: 20,
         borderColor: Colors.text,
         backgroundColor: Colors.inputBackground,
         color: Colors.text,

@@ -1,5 +1,6 @@
 import React from 'react';
-import {Pressable, StyleSheet, Text} from 'react-native';
+import {Pressable, Text} from 'react-native';
+import {useTheme} from '../Hooks';
 
 type Props = {
   onPress: () => void;
@@ -9,10 +10,13 @@ type Props = {
 };
 
 const Button = (props: Props) => {
+  const {Common, Fonts, Gutters} = useTheme();
+
   return (
     <Pressable
       style={[
-        styles.button,
+        Common.button.rounded,
+        Gutters.regularTMargin,
         {
           backgroundColor: props.bgColor,
         },
@@ -20,7 +24,7 @@ const Button = (props: Props) => {
       onPress={props.onPress}>
       <Text
         style={[
-          styles.text,
+          Fonts.textRegular,
           {
             color: props.textColor,
           },
@@ -32,19 +36,3 @@ const Button = (props: Props) => {
 };
 
 export default Button;
-
-const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 4,
-  },
-  text: {
-    fontSize: 16,
-    lineHeight: 21,
-    fontWeight: 'bold',
-    letterSpacing: 0.25,
-  },
-});
