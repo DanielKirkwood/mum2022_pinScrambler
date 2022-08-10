@@ -3,16 +3,8 @@ package com.mum2022_pinscrambler;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
-import android.os.Bundle;
-
 
 public class MainActivity extends ReactActivity {
-
-  // added for package: react-native-screen
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(null);
-  }
 
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
