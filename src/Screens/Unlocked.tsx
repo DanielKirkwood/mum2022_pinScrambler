@@ -1,9 +1,10 @@
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from 'react';
-import {Alert, StyleSheet, Text, View} from 'react-native';
+import {Alert, Text, View} from 'react-native';
 import RNFS from 'react-native-fs';
 import {useDispatch, useSelector} from 'react-redux';
 import {Button} from '../Components';
+import {useTheme} from '../Hooks';
 import {RootStackParamList} from '../Navigators/utils';
 import {RootState} from '../Store';
 import type {SavedData} from '../Store/Pin';
@@ -39,39 +40,22 @@ const downloadCSV = async (filename: string, data: SavedData[]) => {
 };
 
 const UnlockedScreen = ({navigation}: Props) => {
+  const {Fonts, Layout} = useTheme();
+
   const dispatch = useDispatch();
   const layout = useSelector((state: RootState) => state.layout);
   const loggedInUser = useSelector((state: RootState) => state.uid);
   const currentPin = useSelector((state: RootState) => state.currentPin);
   const data = useSelector((state: RootState) => state.data);
-
-  const renderButton = () => {
-    const isNormal = layout === 'normal';
-    const buttonTitle = isNormal ? 'Random' : 'Normal';
-
-    return (
-      <Button
-        title={`Change Layout To ${buttonTitle}`}
-        onPress={() => {
-          dispatch(swapLayout());
-          navigation.navigate('Locked');
-        }}
-        textColor="blue"
-        bgColor="transparent"
-      />
-    );
-  };
+  const isNormal = layout === 'normal';
+  const buttonTitle = isNormal ? 'Random' : 'Normal';
 
   return (
-    <View style={styles.container}>
-      <Text
-        style={{
-          fontSize: 16,
-          padding: 20,
-        }}>
+    <View style={[Layout.colCenter, Layout.fullSize]}>
+      <Text style={[Fonts.titleSmall]}>
         {`Unlocked - (uid ${loggedInUser})`}
       </Text>
-      <View style={{flexDirection: 'row'}}>
+      <View style={[Layout.row]}>
         <Button
           title="Lock"
           onPress={() => {
@@ -91,8 +75,15 @@ const UnlockedScreen = ({navigation}: Props) => {
           bgColor="transparent"
         />
       </View>
-      {renderButton()}
-
+      <Button
+        title={`Change Layout To ${buttonTitle}`}
+        onPress={() => {
+          dispatch(swapLayout());
+          navigation.navigate('Locked');
+        }}
+        textColor="blue"
+        bgColor="transparent"
+      />
       <Button
         title="Download CSV"
         onPress={async () => {
@@ -102,7 +93,7 @@ const UnlockedScreen = ({navigation}: Props) => {
         bgColor="transparent"
       />
 
-      <View style={{flexDirection: 'row'}}>
+      <View style={[Layout.row]}>
         <Button
           title="Delete All Data"
           onPress={() => {
@@ -124,14 +115,5 @@ const UnlockedScreen = ({navigation}: Props) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-  },
-});
 
 export default UnlockedScreen;

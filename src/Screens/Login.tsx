@@ -19,7 +19,7 @@ function LoginScreen() {
           keyboardType="numeric"
           placeholder="Type user ID here"
           onChangeText={uid => setUserID(Number(uid))}
-          style={[Fonts.textRegular]}
+          style={[Fonts.textRegular, Fonts.textCenter]}
         />
       </View>
 
