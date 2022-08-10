@@ -6,10 +6,13 @@ import {Button} from '../Components';
 import type {RootStackParamList} from '../Navigators/utils';
 import {RootState} from '../Store';
 import {addData, adminUnlock, setCurrentPin, unlockPin} from '../Store/Pin';
+import {useTheme} from '../Theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Locked'>;
 
 const LockedScreen = ({navigation}: Props) => {
+  const {Common, Fonts, Colors, Layout, Gutters} = useTheme();
+
   // data required from store
   const status = useSelector((state: RootState) => state.entryStatus);
   const order = useSelector((state: RootState) => state.order);
@@ -61,23 +64,26 @@ const LockedScreen = ({navigation}: Props) => {
   const renderStepper = (numFilled: number) => {
     return (
       <View>
-        <View
-          style={{
-            flexDirection: 'row',
-            margin: 0,
-            padding: 0,
-          }}>
+        <View style={[Layout.row]}>
           <View
-            style={[styles.circleLine, numFilled >= 1 && styles.circleFill]}
+            style={[
+              numFilled >= 1 ? Common.stepper.filled : Common.stepper.outline,
+            ]}
           />
           <View
-            style={[styles.circleLine, numFilled >= 2 && styles.circleFill]}
+            style={[
+              numFilled >= 2 ? Common.stepper.filled : Common.stepper.outline,
+            ]}
           />
           <View
-            style={[styles.circleLine, numFilled >= 3 && styles.circleFill]}
+            style={[
+              numFilled >= 3 ? Common.stepper.filled : Common.stepper.outline,
+            ]}
           />
           <View
-            style={[styles.circleLine, numFilled >= 4 && styles.circleFill]}
+            style={[
+              numFilled >= 4 ? Common.stepper.filled : Common.stepper.outline,
+            ]}
           />
         </View>
       </View>
@@ -88,34 +94,38 @@ const LockedScreen = ({navigation}: Props) => {
     return (
       <TouchableOpacity
         onPress={() => setUserPin(userPin + number)}
-        style={styles.circleButton}>
-        <Text style={styles.number}>{number}</Text>
+        style={[Common.button.pinInput]}>
+        <Text style={[Fonts.textRegular]}>{number}</Text>
       </TouchableOpacity>
     );
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        Layout.fullSize,
+        Layout.alignItemsCenter,
+        Layout.justifyContentCenter,
+        Gutters.smallPadding,
+        {
+          backgroundColor: Colors.backgroundColor,
+        },
+      ]}>
       <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
+        style={[
+          Layout.fullSize,
+          Layout.alignItemsCenter,
+          Layout.justifyContentCenter,
+        ]}>
         <View>
           <View
-            style={{
-              flexDirection: 'column',
-              margin: 0,
-              padding: 30,
-            }}>
-            <Text
-              style={{
-                alignSelf: 'center',
-                paddingBottom: 15,
-                fontSize: 20,
-                color: 'white',
-              }}>
+            style={[
+              Layout.alignItemsCenter,
+              Layout.column,
+              Gutters.zeroMargin,
+              Gutters.largePadding,
+            ]}>
+            <Text style={[Fonts.textRegular, Gutters.smallBPadding]}>
               {status === 'not set' && 'Set PIN'}
               {status === 'error' && 'Incorrect PIN'}
               {status === 'ready' && 'Enter PIN'}
@@ -124,12 +134,7 @@ const LockedScreen = ({navigation}: Props) => {
           </View>
         </View>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            margin: 0,
-            padding: 0,
-          }}>
+        <View style={[Layout.row]}>
           <View>
             <View>{renderPinButton(order[0])}</View>
             <View>{renderPinButton(order[1])}</View>
@@ -150,15 +155,7 @@ const LockedScreen = ({navigation}: Props) => {
           <View>{renderPinButton(order[9])}</View>
         </View>
 
-        <View
-          style={{
-            borderRadius: 25,
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'absolute', //Here is the trick
-            bottom: 25,
-            alignSelf: 'flex-start',
-          }}>
+        <View style={styles.positionBottomLeft}>
           <Button
             title="Unlock"
             onPress={() => {
@@ -171,15 +168,7 @@ const LockedScreen = ({navigation}: Props) => {
           />
         </View>
 
-        <View
-          style={{
-            borderRadius: 25,
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'absolute', //Here is the trick
-            bottom: 25,
-            alignSelf: 'flex-end',
-          }}>
+        <View style={styles.positionBottomRight}>
           <Button
             title="Delete"
             onPress={() => setUserPin(userPin.substring(0, userPin.length - 1))}
@@ -193,44 +182,20 @@ const LockedScreen = ({navigation}: Props) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'rgba(99,102,106, 0.6)',
+  positionBottomRight: {
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 15,
+    position: 'absolute',
+    bottom: 25,
+    alignSelf: 'flex-end',
   },
-  circleLine: {
-    marginHorizontal: 15,
-    height: 13,
-    width: 13,
+  positionBottomLeft: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 30,
-    borderWidth: 2,
-    borderColor: 'white',
-  },
-  circleFill: {
-    backgroundColor: 'white',
-  },
-  circleButton: {
-    margin: 10,
-    height: 80,
-    width: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 160,
-    backgroundColor: 'rgb(128,128,128)',
-  },
-  number: {
-    color: 'white',
-    fontSize: 24,
-  },
-  twoButtons: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 25,
+    alignSelf: 'flex-start',
   },
 });
 

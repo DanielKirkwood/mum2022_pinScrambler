@@ -4,11 +4,11 @@ import {Alert, Text, View} from 'react-native';
 import RNFS from 'react-native-fs';
 import {useDispatch, useSelector} from 'react-redux';
 import {Button} from '../Components';
-import {useTheme} from '../Hooks';
 import {RootStackParamList} from '../Navigators/utils';
 import {RootState} from '../Store';
 import type {SavedData} from '../Store/Pin';
 import {clearAllData, resetPin, signUserOut, swapLayout} from '../Store/Pin';
+import {useTheme} from '../Theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Unlocked'>;
 

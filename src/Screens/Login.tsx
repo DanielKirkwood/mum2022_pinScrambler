@@ -2,8 +2,8 @@ import React, {useState} from 'react';
 import {TextInput, View} from 'react-native';
 import {useDispatch} from 'react-redux';
 import {Button} from '../Components';
-import {useTheme} from '../Hooks';
 import {setUser} from '../Store/Pin';
+import {useTheme} from '../Theme';
 
 function LoginScreen() {
   const {Common, Fonts, Gutters, Layout} = useTheme();

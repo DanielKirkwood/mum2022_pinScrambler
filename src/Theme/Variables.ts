@@ -1,3 +1,4 @@
+import {ThemeColors, ThemeFontSize, ThemeMetricsSizes} from './theme.type';
 /**
  * This file contains the application's variables.
  *
@@ -8,25 +9,22 @@
 /**
  * Colors
  */
-export const Colors = {
+export const Colors: ThemeColors = {
   // Example colors:
   transparent: 'rgba(0,0,0,0)',
   inputBackground: '#FFFFFF',
   white: '#ffffff',
-  text: '#212529',
+  text: '#ffffff',
   primary: '#E14032',
   success: '#28a745',
   error: '#dc3545',
-};
-
-export const NavigationColors = {
-  primary: Colors.primary,
+  backgroundColor: 'rgba(99,102,106, 0.6)',
 };
 
 /**
  * FontSize
  */
-export const FontSize = {
+export const FontSize: ThemeFontSize = {
   small: 16,
   regular: 20,
   large: 40,
@@ -35,11 +33,13 @@ export const FontSize = {
 /**
  * Metrics Sizes
  */
+const zero = 0;
 const tiny = 5; // 10
 const small = tiny * 2; // 10
 const regular = tiny * 3; // 15
 const large = regular * 2; // 30
-export const MetricsSizes = {
+export const MetricsSizes: ThemeMetricsSizes = {
+  zero,
   tiny,
   small,
   regular,
@@ -48,7 +48,6 @@ export const MetricsSizes = {
 
 export default {
   Colors,
-  NavigationColors,
   FontSize,
   MetricsSizes,
 };

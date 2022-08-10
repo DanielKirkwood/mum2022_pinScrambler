@@ -1,6 +1,6 @@
 import React from 'react';
 import {Pressable, Text} from 'react-native';
-import {useTheme} from '../Hooks';
+import {useTheme} from '../Theme';
 
 type Props = {
   onPress: () => void;
