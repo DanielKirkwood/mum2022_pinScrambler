@@ -14,6 +14,7 @@ export const Colors: ThemeColors = {
   transparent: 'rgba(0,0,0,0)',
   inputBackground: '#FFFFFF',
   white: '#ffffff',
+  black: 'black',
   text: '#ffffff',
   primary: '#E14032',
   success: '#28a745',

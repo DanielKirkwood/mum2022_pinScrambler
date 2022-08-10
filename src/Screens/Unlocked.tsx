@@ -52,7 +52,7 @@ const UnlockedScreen = ({navigation}: Props) => {
 
   return (
     <View style={[Layout.colCenter, Layout.fullSize]}>
-      <Text style={[Fonts.titleSmall]}>
+      <Text style={[Fonts.titleSmall, Fonts.textBlack]}>
         {`Unlocked - (uid ${loggedInUser})`}
       </Text>
       <View style={[Layout.row]}>

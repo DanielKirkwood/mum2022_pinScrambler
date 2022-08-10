@@ -50,5 +50,8 @@ export default function ({FontSize, Colors}: ThemeVariables): ThemeFonts {
     textRight: {
       textAlign: 'right',
     },
+    textBlack: {
+      color: Colors.black,
+    },
   });
 }
