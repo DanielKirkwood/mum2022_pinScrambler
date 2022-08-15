@@ -6,7 +6,7 @@ import {setUser} from '../Store/Pin';
 import {useTheme} from '../Theme';
 
 function LoginScreen() {
-  const {Common, Fonts, Gutters, Layout} = useTheme();
+  const {Common, Fonts, Gutters, Layout, Colors} = useTheme();
 
   const [userID, setUserID] = useState<number | null>(null);
   const dispatch = useDispatch();
@@ -19,7 +19,13 @@ function LoginScreen() {
           keyboardType="numeric"
           placeholder="Type user ID here"
           onChangeText={uid => setUserID(Number(uid))}
-          style={[Fonts.textRegular, Fonts.textCenter]}
+          style={[
+            Fonts.textRegular,
+            Fonts.textCenter,
+            {
+              color: Colors.black,
+            },
+          ]}
         />
       </View>
 

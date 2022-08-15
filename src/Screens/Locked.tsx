@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Button} from '../Components';
 import type {RootStackParamList} from '../Navigators/utils';
 import {RootState} from '../Store';
-import {addData, adminUnlock, setCurrentPin, unlockPin} from '../Store/Pin';
+import {adminUnlock, setCurrentPin, unlockPin} from '../Store/Pin';
 import {useTheme} from '../Theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Locked'>;
@@ -16,8 +16,8 @@ const LockedScreen = ({navigation}: Props) => {
   // data required from store
   const status = useSelector((state: RootState) => state.entryStatus);
   const order = useSelector((state: RootState) => state.order);
+  const currentPin = useSelector((state: RootState) => state.currentPin);
 
-  const attempts = useSelector((state: RootState) => state.currentAttempts);
   const dispatch = useDispatch();
 
   // update userPin as user enters it
@@ -29,10 +29,20 @@ const LockedScreen = ({navigation}: Props) => {
   useEffect(() => {
     // when user enters pin, set it as currentPin or attempt unlock
     if (userPin.length === 4) {
+      // measure time between first button click and now
+      const lastTime: number = Date.now();
+
       if (status === 'not set') {
         dispatch(setCurrentPin(userPin));
       } else {
-        dispatch(unlockPin(userPin));
+        if (firstTime !== undefined && lastTime !== undefined) {
+          const time: number = lastTime - firstTime;
+          dispatch(unlockPin({pinEntered: userPin, timeToUnlock: time}));
+        }
+
+        if (userPin === currentPin) {
+          navigation.navigate('Unlocked');
+        }
       }
 
       // clear user input
@@ -40,21 +50,8 @@ const LockedScreen = ({navigation}: Props) => {
     }
 
     // if it is the users first attempt at entering their pin, save the time
-    if (userPin.length === 1 && attempts === 0 && status !== 'not set') {
+    if (userPin.length === 1 && status !== 'not set') {
       setFirstTime(Date.now());
-    }
-    // if user successfully signs in
-    if (status === 'success') {
-      // measure time between first button click and now
-      const lastTime: number = Date.now();
-
-      if (firstTime !== undefined && lastTime !== undefined) {
-        let time: number = lastTime - firstTime;
-
-        // add user data to state
-        dispatch(addData({timeToUnlock: time}));
-        navigation.navigate('Unlocked');
-      }
     }
 
     return;
@@ -127,7 +124,6 @@ const LockedScreen = ({navigation}: Props) => {
             ]}>
             <Text style={[Fonts.textRegular, Gutters.smallBPadding]}>
               {status === 'not set' && 'Set PIN'}
-              {status === 'error' && 'Incorrect PIN'}
               {status === 'ready' && 'Enter PIN'}
             </Text>
             {renderStepper(userPin.length)}

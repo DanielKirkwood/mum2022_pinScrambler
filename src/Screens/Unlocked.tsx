@@ -1,6 +1,6 @@
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from 'react';
-import {Alert, Text, View} from 'react-native';
+import {Alert, PermissionsAndroid, Text, View} from 'react-native';
 import RNFS from 'react-native-fs';
 import {useDispatch, useSelector} from 'react-redux';
 import {Button} from '../Components';
@@ -16,25 +16,46 @@ const downloadCSV = async (filename: string, data: SavedData[]) => {
   // create csv string from data object
   // code from https://dev.to/samueldjones/convert-an-array-of-objects-to-csv-string-in-javascript-337d
   const csvString = [
-    ['uid', 'pin', 'layout', 'timeToUnlock', 'numErrors'],
+    ['uid', 'pin', 'pinEntered', 'success', 'layout', 'timeToUnlock'],
     ...data.map(item => [
       item.uid,
       item.pin,
+      item.pinEntered,
+      item.success,
       item.layout,
       item.timeToUnlock,
-      item.numErrors,
     ]),
   ]
     .map(e => e.join(','))
     .join('\n');
 
   const path = `${RNFS.DownloadDirectoryPath}/${filename}.csv`;
-
   try {
-    await RNFS.writeFile(path, csvString, 'utf8');
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: 'MUM2022 PinScrambler Permission',
+        message: 'We need permission to download the data to your file system.',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      const fileExists = await RNFS.exists(path);
 
-    return Alert.alert('Success', `Wrote file to ${path}`);
+      if (fileExists) {
+        await RNFS.unlink(path);
+      }
+
+      await RNFS.writeFile(path, csvString, 'utf8');
+
+      return Alert.alert('Success', `Wrote file to ${path}`);
+    } else {
+      return Alert.alert('Error', 'Permission Denied');
+    }
   } catch (error) {
+    console.log(error);
+
     return Alert.alert('Error', 'An error occurred');
   }
 };

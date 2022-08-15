@@ -5,17 +5,17 @@ import {shuffle} from './utils';
 export interface SavedData {
   uid: number | null;
   pin: string;
+  pinEntered: string;
+  success: boolean;
   layout: 'normal' | 'random';
   timeToUnlock: number;
-  numErrors: number;
 }
 
 export interface InformationData {
   uid: number | null;
   currentPin: string;
   layout: 'normal' | 'random';
-  entryStatus: 'ready' | 'error' | 'not set' | 'success';
-  currentAttempts: number;
+  entryStatus: 'ready' | 'not set';
   order: string[];
   data: SavedData[];
 }
@@ -25,7 +25,6 @@ const initialState: InformationData = {
   currentPin: '',
   layout: 'normal',
   entryStatus: 'not set',
-  currentAttempts: 0,
   order: ['1', '4', '7', '2', '5', '8', '3', '6', '9', '0'],
   data: [],
 };
@@ -40,7 +39,6 @@ export const pinSlice = createSlice({
       state.uid = action.payload;
 
       // reset the pin info
-      state.currentAttempts = 0;
       state.entryStatus = 'not set';
       state.currentPin = '';
 
@@ -58,7 +56,6 @@ export const pinSlice = createSlice({
     setCurrentPin: (state, action: PayloadAction<string>) => {
       state.currentPin = action.payload;
       state.entryStatus = 'ready';
-      state.currentAttempts = 0;
 
       if (state.layout === 'random') {
         state.order = shuffle(state.order);
@@ -66,41 +63,30 @@ export const pinSlice = createSlice({
         state.order = ['1', '4', '7', '2', '5', '8', '3', '6', '9', '0'];
       }
     },
-    unlockPin: (state, action: PayloadAction<string>) => {
+    unlockPin: (
+      state,
+      action: PayloadAction<{pinEntered: string; timeToUnlock: number}>,
+    ) => {
       // check user entered pin with registered pin
-      const isMatching = state.currentPin === action.payload;
+      const isMatching = state.currentPin === action.payload.pinEntered;
 
-      // if not matching increase number of attempts
-      if (!isMatching) {
-        state.currentAttempts += 1;
-      }
+      // create successful sign in data object
+      const dataToAdd: SavedData = {
+        uid: state.uid,
+        pin: state.currentPin,
+        pinEntered: action.payload.pinEntered,
+        success: isMatching,
+        layout: state.layout,
+        timeToUnlock: action.payload.timeToUnlock,
+      };
+      state.data.push(dataToAdd);
 
-      // change the status if is matching
-      state.entryStatus = isMatching ? 'success' : 'error';
+      state.entryStatus = 'ready';
 
       // reshuffle
       if (state.layout === 'random') {
         state.order = shuffle(state.order);
       }
-    },
-    // add to data list using currently signed in user, current pin and the given metrics
-    addData: (
-      state,
-      action: PayloadAction<Pick<SavedData, 'timeToUnlock'>>,
-    ) => {
-      // create successful sign in data object
-      const dataToAdd: SavedData = {
-        uid: state.uid,
-        pin: state.currentPin,
-        layout: state.layout,
-        timeToUnlock: action.payload.timeToUnlock,
-        numErrors: state.currentAttempts,
-      };
-      state.data.push(dataToAdd);
-
-      // reset metrics
-      state.currentAttempts = 0;
-      state.entryStatus = 'ready';
     },
     resetPin: state => {
       state.currentPin = '';
@@ -131,13 +117,11 @@ export const pinSlice = createSlice({
       state.currentPin = '';
       state.layout = 'normal';
       state.entryStatus = 'not set';
-      state.currentAttempts = 0;
       state.order = ['1', '4', '7', '2', '5', '8', '3', '6', '9', '0'];
       state.data = [];
     },
     adminUnlock: state => {
       // reset metrics without adding to data
-      state.currentAttempts = 0;
       state.entryStatus = 'ready';
 
       // reshuffle
@@ -152,7 +136,6 @@ export const {
   setUser,
   setCurrentPin,
   unlockPin,
-  addData,
   resetPin,
   swapLayout,
   signUserOut,
