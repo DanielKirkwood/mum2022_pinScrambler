@@ -21,6 +21,7 @@ export interface InformationData {
   order: string[];
   data: SavedData[];
   taskCompletion: 'incomplete' | 'complete';
+  hasSwitched: 'no' | 'yes';
 }
 
 const initialState: InformationData = {
@@ -32,6 +33,7 @@ const initialState: InformationData = {
   order: ['1', '4', '7', '2', '5', '8', '3', '6', '9', '0'],
   data: [],
   taskCompletion: 'incomplete',
+  hasSwitched: 'no',
 };
 
 export const pinSlice = createSlice({
@@ -42,9 +44,11 @@ export const pinSlice = createSlice({
     setUser: (state, action: PayloadAction<number>) => {
       // log user in by setting them in state
       state.uid = action.payload;
+      state.taskCompletion = 'incomplete';
 
       // get the pins for that given user id
       state.pinList = usabilityPins[action.payload - 1];
+      state.currentIndex = 0;
       state.currentPin = state.pinList[state.currentIndex];
 
       // if user id even then give random layout by default
@@ -72,6 +76,9 @@ export const pinSlice = createSlice({
       action: PayloadAction<{pinEntered: string; timeToUnlock: number}>,
     ) => {
       // check user entered pin with registered pin
+
+      console.log('start unlockPin ~ layout:', state.layout);
+
       const isMatching = state.currentPin === action.payload.pinEntered;
 
       // create attempted sign in data object
@@ -97,10 +104,16 @@ export const pinSlice = createSlice({
       }
 
       // change layout automatically once user has completed half of their pins
-      if (state.currentIndex >= state.pinList.length / 2) {
+
+      if (
+        state.currentIndex === state.pinList.length / 2 &&
+        state.hasSwitched === 'no'
+      ) {
         // if layout is normal, change to random, otherwise set to normal
         const isNormal = state.layout === 'normal';
         state.layout = isNormal ? 'random' : 'normal';
+
+        state.hasSwitched = 'yes';
       }
 
       // shuffle after attempted unlock
@@ -109,21 +122,11 @@ export const pinSlice = createSlice({
       } else {
         state.order = ['1', '4', '7', '2', '5', '8', '3', '6', '9', '0'];
       }
+
+      console.log('end unlockPin ~ layout:', state.layout);
     },
     resetPin: state => {
       state.currentPin = '';
-    },
-    // change the layout state
-    swapLayout: state => {
-      // if layout is normal, change to random, otherwise set to normal
-      const isNormal = state.layout === 'normal';
-      state.layout = isNormal ? 'random' : 'normal';
-
-      if (state.layout === 'random') {
-        state.order = shuffle(state.order);
-      } else {
-        state.order = ['1', '4', '7', '2', '5', '8', '3', '6', '9', '0'];
-      }
     },
     // clear current signed in user data
     signUserOut: state => {
@@ -131,6 +134,10 @@ export const pinSlice = createSlice({
       state.currentPin = '';
       state.layout = 'normal';
       state.order = ['1', '4', '7', '2', '5', '8', '3', '6', '9', '0'];
+      state.pinList = [];
+      state.currentIndex = 0;
+      state.taskCompletion = 'incomplete';
+      state.hasSwitched = 'no';
     },
     // clear all stored data
     clearAllData: state => {
@@ -158,7 +165,6 @@ export const {
   setCurrentPin,
   unlockPin,
   resetPin,
-  swapLayout,
   signUserOut,
   clearAllData,
   adminUnlock,
