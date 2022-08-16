@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Button} from '../Components';
 import type {RootStackParamList} from '../Navigators/utils';
 import {RootState} from '../Store';
-import {adminUnlock, setCurrentPin, unlockPin} from '../Store/Pin';
+import {adminUnlock, unlockPin} from '../Store/Pin';
 import {useTheme} from '../Theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Locked'>;
@@ -14,9 +14,12 @@ const LockedScreen = ({navigation}: Props) => {
   const {Common, Fonts, Colors, Layout, Gutters} = useTheme();
 
   // data required from store
-  const status = useSelector((state: RootState) => state.entryStatus);
+  const taskCompletion = useSelector(
+    (state: RootState) => state.taskCompletion,
+  );
   const order = useSelector((state: RootState) => state.order);
   const currentPin = useSelector((state: RootState) => state.currentPin);
+  const pinIndex = useSelector((state: RootState) => state.currentIndex);
 
   const dispatch = useDispatch();
 
@@ -27,22 +30,25 @@ const LockedScreen = ({navigation}: Props) => {
   const [firstTime, setFirstTime] = useState<number>();
 
   useEffect(() => {
+    if (taskCompletion === 'complete') {
+      navigation.navigate('Unlocked');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taskCompletion]);
+
+  useEffect(() => {
     // when user enters pin, set it as currentPin or attempt unlock
     if (userPin.length === 4) {
       // measure time between first button click and now
       const lastTime: number = Date.now();
 
-      if (status === 'not set') {
-        dispatch(setCurrentPin(userPin));
-      } else {
-        if (firstTime !== undefined && lastTime !== undefined) {
-          const time: number = lastTime - firstTime;
-          dispatch(unlockPin({pinEntered: userPin, timeToUnlock: time}));
-        }
+      if (firstTime !== undefined && lastTime !== undefined) {
+        const time: number = lastTime - firstTime;
+        dispatch(unlockPin({pinEntered: userPin, timeToUnlock: time}));
+      }
 
-        if (userPin === currentPin) {
-          navigation.navigate('Unlocked');
-        }
+      if (userPin === currentPin) {
+        navigation.navigate('Unlocked');
       }
 
       // clear user input
@@ -50,7 +56,7 @@ const LockedScreen = ({navigation}: Props) => {
     }
 
     // if it is the users first attempt at entering their pin, save the time
-    if (userPin.length === 1 && status !== 'not set') {
+    if (userPin.length === 1) {
       setFirstTime(Date.now());
     }
 
@@ -123,8 +129,7 @@ const LockedScreen = ({navigation}: Props) => {
               Gutters.largePadding,
             ]}>
             <Text style={[Fonts.textRegular, Gutters.smallBPadding]}>
-              {status === 'not set' && 'Set PIN'}
-              {status === 'ready' && 'Enter PIN'}
+              {`Enter PIN ${pinIndex + 1}`}
             </Text>
             {renderStepper(userPin.length)}
           </View>
@@ -159,15 +164,6 @@ const LockedScreen = ({navigation}: Props) => {
               dispatch(adminUnlock());
               navigation.navigate('Unlocked');
             }}
-            textColor="white"
-            bgColor="transparent"
-          />
-        </View>
-
-        <View style={styles.positionBottomRight}>
-          <Button
-            title="Delete"
-            onPress={() => setUserPin(userPin.substring(0, userPin.length - 1))}
             textColor="white"
             bgColor="transparent"
           />
