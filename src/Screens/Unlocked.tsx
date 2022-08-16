@@ -7,7 +7,7 @@ import {Button} from '../Components';
 import {RootStackParamList} from '../Navigators/utils';
 import {RootState} from '../Store';
 import type {SavedData} from '../Store/Pin';
-import {clearAllData, resetPin, signUserOut, swapLayout} from '../Store/Pin';
+import {clearAllData, signUserOut} from '../Store/Pin';
 import {useTheme} from '../Theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Unlocked'>;
@@ -64,56 +64,51 @@ const UnlockedScreen = ({navigation}: Props) => {
   const {Fonts, Layout} = useTheme();
 
   const dispatch = useDispatch();
-  const layout = useSelector((state: RootState) => state.layout);
   const loggedInUser = useSelector((state: RootState) => state.uid);
+  const taskCompletion = useSelector(
+    (state: RootState) => state.taskCompletion,
+  );
   const currentPin = useSelector((state: RootState) => state.currentPin);
   const data = useSelector((state: RootState) => state.data);
-  const isNormal = layout === 'normal';
-  const buttonTitle = isNormal ? 'Random' : 'Normal';
 
   return (
     <View style={[Layout.colCenter, Layout.fullSize]}>
       <Text style={[Fonts.titleSmall, Fonts.textBlack]}>
         {`Unlocked - (uid ${loggedInUser})`}
       </Text>
-      <View style={[Layout.row]}>
-        <Button
-          title="Lock"
-          onPress={() => {
-            navigation.navigate('Locked');
-          }}
-          textColor="blue"
-          bgColor="transparent"
-        />
+      {taskCompletion === 'incomplete' && (
+        <Text
+          style={[
+            Fonts.textRegular,
+            Fonts.textBlack,
+          ]}>{`Next PIN - ${currentPin}`}</Text>
+      )}
+      {taskCompletion === 'complete' && (
+        <Text style={[Fonts.textRegular, Fonts.textBlack]}>
+          All Tasks Completed!!!
+        </Text>
+      )}
 
+      <View style={[Layout.row]}>
+        {taskCompletion === 'incomplete' && (
+          <Button
+            title="Lock"
+            onPress={() => {
+              navigation.navigate('Locked');
+            }}
+            textColor="blue"
+            bgColor="transparent"
+          />
+        )}
         <Button
-          title={currentPin === '' ? 'Set PIN' : 'Change PIN'}
-          onPress={() => {
-            dispatch(resetPin());
-            navigation.navigate('Locked');
+          title="Download CSV"
+          onPress={async () => {
+            await downloadCSV('PinScrambler_Data', data);
           }}
           textColor="blue"
           bgColor="transparent"
         />
       </View>
-      <Button
-        title={`Change Layout To ${buttonTitle}`}
-        onPress={() => {
-          dispatch(swapLayout());
-          navigation.navigate('Locked');
-        }}
-        textColor="blue"
-        bgColor="transparent"
-      />
-      <Button
-        title="Download CSV"
-        onPress={async () => {
-          await downloadCSV('PinScrambler_Data', data);
-        }}
-        textColor="blue"
-        bgColor="transparent"
-      />
-
       <View style={[Layout.row]}>
         <Button
           title="Delete All Data"
