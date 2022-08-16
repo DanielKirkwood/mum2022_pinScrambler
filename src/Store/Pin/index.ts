@@ -1,5 +1,6 @@
 import type {PayloadAction} from '@reduxjs/toolkit';
 import {createSlice} from '@reduxjs/toolkit';
+import {usabilityPins} from './usabilityPins';
 import {shuffle} from './utils';
 
 export interface SavedData {
@@ -14,19 +15,23 @@ export interface SavedData {
 export interface InformationData {
   uid: number | null;
   currentPin: string;
+  pinList: string[];
+  currentIndex: number;
   layout: 'normal' | 'random';
-  entryStatus: 'ready' | 'not set';
   order: string[];
   data: SavedData[];
+  taskCompletion: 'incomplete' | 'complete';
 }
 
 const initialState: InformationData = {
   uid: null,
   currentPin: '',
+  pinList: [],
+  currentIndex: 0,
   layout: 'normal',
-  entryStatus: 'not set',
   order: ['1', '4', '7', '2', '5', '8', '3', '6', '9', '0'],
   data: [],
+  taskCompletion: 'incomplete',
 };
 
 export const pinSlice = createSlice({
@@ -38,9 +43,9 @@ export const pinSlice = createSlice({
       // log user in by setting them in state
       state.uid = action.payload;
 
-      // reset the pin info
-      state.entryStatus = 'not set';
-      state.currentPin = '';
+      // get the pins for that given user id
+      state.pinList = usabilityPins[action.payload - 1];
+      state.currentPin = state.pinList[state.currentIndex];
 
       // if user id even then give random layout by default
       const isEven = action.payload % 2 === 0;
@@ -55,7 +60,6 @@ export const pinSlice = createSlice({
     // set the given pin in state
     setCurrentPin: (state, action: PayloadAction<string>) => {
       state.currentPin = action.payload;
-      state.entryStatus = 'ready';
 
       if (state.layout === 'random') {
         state.order = shuffle(state.order);
@@ -70,7 +74,7 @@ export const pinSlice = createSlice({
       // check user entered pin with registered pin
       const isMatching = state.currentPin === action.payload.pinEntered;
 
-      // create successful sign in data object
+      // create attempted sign in data object
       const dataToAdd: SavedData = {
         uid: state.uid,
         pin: state.currentPin,
@@ -81,16 +85,33 @@ export const pinSlice = createSlice({
       };
       state.data.push(dataToAdd);
 
-      state.entryStatus = 'ready';
+      // if user gets pin correct, move to next pin
+      if (isMatching) {
+        if (state.pinList.length === state.currentIndex + 1) {
+          state.taskCompletion = 'complete';
+          return;
+        }
 
-      // reshuffle
+        state.currentIndex += 1;
+        state.currentPin = state.pinList[state.currentIndex];
+      }
+
+      // change layout automatically once user has completed half of their pins
+      if (state.currentIndex >= state.pinList.length / 2) {
+        // if layout is normal, change to random, otherwise set to normal
+        const isNormal = state.layout === 'normal';
+        state.layout = isNormal ? 'random' : 'normal';
+      }
+
+      // shuffle after attempted unlock
       if (state.layout === 'random') {
         state.order = shuffle(state.order);
+      } else {
+        state.order = ['1', '4', '7', '2', '5', '8', '3', '6', '9', '0'];
       }
     },
     resetPin: state => {
       state.currentPin = '';
-      state.entryStatus = 'not set';
     },
     // change the layout state
     swapLayout: state => {
@@ -115,14 +136,14 @@ export const pinSlice = createSlice({
     clearAllData: state => {
       state.uid = null;
       state.currentPin = '';
+      state.pinList = [];
+      state.currentIndex = 0;
       state.layout = 'normal';
-      state.entryStatus = 'not set';
       state.order = ['1', '4', '7', '2', '5', '8', '3', '6', '9', '0'];
       state.data = [];
     },
     adminUnlock: state => {
       // reset metrics without adding to data
-      state.entryStatus = 'ready';
 
       // reshuffle
       if (state.layout === 'random') {
